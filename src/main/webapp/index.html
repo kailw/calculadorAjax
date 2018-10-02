@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Ejercicio CS</title>
+        <link href="estilos.css" media="all" rel="Stylesheet" type="text/css" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+              crossorigin="anonymous">
+
+    </head>
+    <style>
+        div {
+            margin-top: 20px;
+        }
+
+        table {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .header {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        td:hover {
+            background-color: #79AF79;
+            color: white;
+        }
+
+
+    </style>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Tabla Ajax</h1>
+            </div>
+
+            <form role="form">
+
+                <div class="form-group">
+                    <label for="ancho">Ancho</label>
+                    <input type="text" class="form-control" id="ancho" placeholder="Introduce el ancho de la tabla" name="ancho" required>
+                    <div id="mensajeA" class="">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="largo">Largo</label>
+                    <input type="text" class="form-control" id="largo" placeholder="Introduce el largo de la tabla" name="largo" required>
+                </div>
+                <div id="mensajeB" class="">
+                </div>
+
+                <button type="button" name="enviar" value="Enviar" id="crear" class="btn btn-success">Enviar</button>
+                <button id="reset" type="reset" class="btn btn-danger">Reiniciar tabla</button>
+
+
+                <div id="alerta"></div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="tabla">
+                    </table>
+                </div>
+            </form>
+        </div>
+
+
+        <script>
+            $(document).ready(function () {
+                function isNormalInteger(str) {
+                    return /(^[0]*[1-9][0-9]*)$/.test(str);
+                }
+
+
+                $("#ancho").keyup(function () {
+                    if ((isNormalInteger($("#ancho").val())) && ($("#ancho").val() <= 100)) {
+                        $("#mensajeA").attr("class", "alert alert-success");
+                        $("#ancho").css("border-color", "green");
+                        $("#mensajeA").empty().append("Correcto");
+
+                        if ((isNormalInteger($("#largo").val())) && ($("#largo").val() <= 100)) {
+                            $("#crear").attr("disabled", false);
+                            $("#tabla").empty();                                                        
+                        }
+                    } else {
+                        $("#mensajeA").attr("class", "alert alert-danger");
+                        $("#mensajeA").empty().append("Debes introducir números mayores 0 y menores que 100");
+                        $("#ancho").css("border-color", "red");
+                        $("#crear").attr("disabled", true);
+                    }
+                });
+
+                $("#largo").keyup(function () {
+                    if ((isNormalInteger($("#largo").val())) && ($("#largo").val() <= 100)) {
+                        $("#mensajeB").attr("class", "alert alert-success");
+                        $("#largo").css("border-color", "green");
+                        $("#mensajeB").empty().append("Correcto");
+                        if ((isNormalInteger($("#ancho").val())) && ($("#ancho").val() <= 100)) {
+                            $("#crear").attr("disabled", false);
+                            $("#tabla").empty();                            
+                        }
+                    } else {
+                        $("#mensajeB").attr("class", "alert alert-danger");
+                        $("#mensajeB").empty().append("Debes introducir números mayores 0 y menores que 100");
+                        $("#largo").css("border-color", "red");
+                        $("#crear").attr("disabled", true);
+                    }
+                });
+
+
+                $("#crear").click(function () {                    
+                    var ancho = $("#ancho").val();
+                    var largo = $("#largo").val();                    
+                    $("#tabla").empty();
+                    for (i = 1; i <= largo; i++) {
+                        $("#tabla").append("<tr>");
+                        for (j = 1; j <= ancho; j++) {
+                            $("#tabla").append("<td id='z" + i + "-" + j + "'> </td>");
+                        }
+                        $("#tabla").append("</tr>");
+                    }      
+                    
+                    
+                    for (i = 1; i <= largo; i++) {
+                        for (j = 1; j <= ancho; j++) {
+                            (function (x, y) {
+                                var url = "/p04cs/tablajax?largo=" + x + "&ancho=" + y;
+                                $.ajax({
+                                    url: url,
+                                    cache: false,
+                                    method: "GET",
+                                    dataType: "json",
+                                    success: function (data) {
+                                        $("#z" + x + "-" + y).empty().append(data);  
+                             
+                                    },
+                                    error: function (error) {
+                                        $("#alerta").attr("class", "alert alert-danger");
+                                        $("#alerta").empty().append("<h4 style='text-align: center'>ERROR:</h4><h5 class=\"alert alert-danger\">" + error.status + ": " + error.responseText + "</h5>");
+                                    }
+                                });                                
+                            })(i,j);
+                        }
+                    }
+                });
+
+
+                $("#reset").click(function () {
+                    $("#tabla").empty();
+                    $("#ancho").val("");
+                    $("#largo").val("");
+                    $("#mensajeA").attr("class", "");
+                    $("#mensajeB").attr("class", "");
+                    $("#mensajeA").empty();
+                    $("#mensajeB").empty();
+                    $("#alerta").attr("class", "");
+                    $("#alerta").empty();
+                    $("#ancho").css("border-color", "");
+                    $("#largo").css("border-color", "");
+                    $("#crear").attr("disabled", true);
+                });
+
+            });
+        </script>
+
+    </body>
+
+</html>
+
+
